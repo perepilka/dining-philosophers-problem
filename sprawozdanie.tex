@@ -1,0 +1,198 @@
+\documentclass[12pt,a4paper]{article}
+
+% Pakiety
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{xcolor}
+
+% Polish characters support
+\usepackage[polish]{babel}
+
+% Ustawienia strony
+\geometry{
+    left=2.5cm,
+    right=2.5cm,
+    top=2.5cm,
+    bottom=2.5cm
+}
+
+% Kolory
+\definecolor{titlecolor}{RGB}{0,51,102}
+\definecolor{subtitlecolor}{RGB}{102,102,102}
+
+\begin{document}
+
+% Strona tytułowa
+\begin{titlepage}
+    \centering
+    
+    % Logo/Nazwa uczelni (opcjonalnie)
+    \vspace{2cm}
+    
+    {\Large\textsc{Politechnika Wrocławska}}\\[0.5cm]
+    {\large\textsc{Wydział Informatyki i Telekomunikacji}}\\[2cm]
+    
+    % Przedmiot
+    {\Large\textbf{Systemy Operacyjne}}\\[0.5cm]
+    
+    \rule{\textwidth}{1.5pt}\\[0.3cm]
+    
+    % Tytuł projektu
+    {\Huge\color{titlecolor}\textbf{Problem Ucztujących}}\\[0.2cm]
+    {\Huge\color{titlecolor}\textbf{Filozofów}}\\[0.3cm]
+    {\Large\color{subtitlecolor}\textit{Dining Philosophers Problem}}\\[0.3cm]
+    
+    \rule{\textwidth}{1.5pt}\\[1.5cm]
+    
+    % Podtytuł
+    {\large Implementacja i analiza porównawcza trzech strategii}\\
+    {\large synchronizacji wielowątkowej}\\[3cm]
+    
+    % Informacje o autorze i prowadzącym
+    \begin{minipage}{0.45\textwidth}
+        \begin{flushleft}
+            \textbf{Autor:}\\
+            Yaroslav Perepilka
+        \end{flushleft}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.45\textwidth}
+        \begin{flushright}
+            \textbf{Prowadzący:}\\
+            dr inż. Mariusz Makuchowski
+        \end{flushright}
+    \end{minipage}
+    
+    \vfill
+    
+    % Data
+    {\large Wrocław, 6 stycznia 2025}
+    
+\end{titlepage}
+
+% Opcjonalnie: Spis treści
+\newpage
+\tableofcontents
+
+\newpage
+
+% Tu będzie treść sprawozdania
+\section{Wstęp}
+
+Problem ucztujących filozofów (ang. \textit{Dining Philosophers Problem}) jest klasycznym problemem synchronizacji procesów, sformułowanym przez Edsgara Dijkstrę w 1965 roku. Problem ten ilustruje wyzwania związane z zapobieganiem zakleszczeniom (\textit{deadlock}) i zagłodzeniu (\textit{starvation}) w systemach wielowątkowych.
+
+\subsection{Opis problemu}
+
+Pięciu filozofów siedzi przy okrągłym stole. Każdy filozof na przemian myśli i je. Do jedzenia potrzebne są dwa widelce -- lewy i prawy. Problem polega na zaprojektowaniu takiego protokołu, który:
+
+\begin{itemize}
+    \item Zapobiega zakleszczeniom (deadlock)
+    \item Zapobiega zagłodzeniu pojedynczych filozofów (starvation)
+    \item Maksymalizuje współbieżność (concurrency)
+    \item Zapewnia sprawiedliwy dostęp do zasobów (fairness)
+\end{itemize}
+
+\subsection{Cel projektu}
+
+Celem niniejszego projektu jest:
+
+\begin{enumerate}
+    \item Implementacja trzech różnych strategii synchronizacji
+    \item Analiza porównawcza wydajności i sprawiedliwości
+    \item Badanie wpływu liczby filozofów na zachowanie systemu
+    \item Wykrycie i demonstracja sytuacji zakleszczenia
+\end{enumerate}
+
+\section{Implementacja}
+
+\subsection{Środowisko techniczne}
+
+Projekt został zrealizowany w języku Python 3 z wykorzystaniem biblioteki standardowej \texttt{threading}. Wybór języka Python pozwala na czytelną implementację oraz łatwą analizę wyników.
+
+\subsubsection{Specyfikacja sprzętowa}
+
+Testy wydajnościowe przeprowadzono na następującym sprzęcie:
+
+\begin{itemize}
+    \item \textbf{Procesor:} AMD Ryzen 7 6800H with Radeon Graphics
+    \item \textbf{Liczba rdzeni fizycznych:} 8
+    \item \textbf{Liczba wątków (z SMT):} 16
+    \item \textbf{System operacyjny:} Linux
+\end{itemize}
+
+\subsubsection{Wpływ wielordzeniowości na problem}
+
+Liczba dostępnych rdzeni procesora ma kluczowe znaczenie dla problemu ucztujących filozofów:
+
+\begin{enumerate}
+    \item \textbf{Prawdziwa współbieżność:} Przy 16 dostępnych wątkach sprzętowych możliwa jest rzeczywista równoległa praca wielu filozofów jednocześnie (w przeciwieństwie do pseudo-równoległości na jednordzeniowych systemach).
+    
+    \item \textbf{Intensyfikacja race conditions:} Większa liczba rdzeni zwiększa prawdopodobieństwo wystąpienia rzeczywistych wyścigów (race conditions) i zakleszczenia, co lepiej pokazuje problemy synchronizacji.
+    
+    \item \textbf{Skalowalność:} Przy testach z 32 filozofami na 16 wątkach sprzętowych widoczne staje się znaczenie efektywnej synchronizacji -- w danym momencie jedynie połowa filozofów może wykonywać się równolegle.
+    
+    \item \textbf{Overhead context switching:} Gdy liczba filozofów przekracza liczbę wątków sprzętowych, scheduler systemu operacyjnego musi przełączać konteksty, co wpływa na wydajność.
+\end{enumerate}
+
+W przypadku strategii \textbf{deadlock}, wielordzeniowość przyspiesza wystąpienie zakleszczenia -- wszystkie wątki mogą niemal jednocześnie zająć lewe widelce, prowadząc do natychmiastowego deadlocka.
+
+Dla strategii \textbf{hierarchy} i \textbf{asymmetric}, większa liczba rdzeni pozwala na wyższy throughput (więcej posiłków na sekundę), gdyż więcej filozofów może jeść równolegle bez blokowania się nawzajem.
+
+\subsection{Zaimplementowane strategie}
+
+\subsubsection{Strategia 1: Deadlock (Podejście naiwne)}
+
+Wszyscy filozofowie działają jednolicie -- najpierw podnoszą lewy widelec, następnie prawy. Ta strategia prowadzi do zakleszczenia, gdy wszyscy filozofowie jednocześnie podniosą lewy widelec i czekają na prawy.
+
+\subsubsection{Strategia 2: Hierarchy (Rozwiązanie Dijkstry)}
+
+Widelce numerowane są od 0 do N-1. Każdy filozof zawsze podnosi widelec o niższym numerze jako pierwszy. To rozwiązanie przerywa cykliczne oczekiwanie (\textit{circular wait}), eliminując możliwość zakleszczenia.
+
+\subsubsection{Strategia 3: Asymmetric (Filozofowie parzyści/nieparzyści)}
+
+Filozofowie o parzystych indeksach podnoszą najpierw lewy widelec, a o nieparzystych -- prawy. Przerwanie symetrii działań zapobiega jednoczesnej próbie zajęcia tych samych zasobów.
+
+\section{Metodologia badań}
+
+\subsection{Parametry testów}
+
+Przeprowadzono testy dla następujących konfiguracji:
+
+\begin{itemize}
+    \item \textbf{Liczba filozofów:} 3, 5, 16, 32
+    \item \textbf{Czas symulacji:} 30s, 60s, 180s (3 min), 600s (10 min), 1200s (20 min)
+    \item \textbf{Strategie:} deadlock, hierarchy, asymmetric
+\end{itemize}
+
+\subsection{Mierzone metryki}
+
+\begin{itemize}
+    \item Całkowita liczba posiłków (\textit{total meals})
+    \item Średnia liczba posiłków na filozofa
+    \item Przepustowość systemu (posiłki/sekundę)
+    \item Współczynnik sprawiedliwości (\textit{fairness coefficient})
+    \item Odchylenie standardowe liczby posiłków
+    \item Wykrycie zakleszczenia
+\end{itemize}
+
+\section{Wyniki}
+
+\textit{[Tutaj umieścić wykresy, tabele i analizę wyników z pliku performance\_analysis.csv]}
+
+\section{Wnioski}
+
+\textit{[Podsumowanie wyników i wnioski końcowe]}
+
+\section{Bibliografia}
+
+\begin{enumerate}
+    \item Dijkstra, E. W. (1971). \textit{Hierarchical ordering of sequential processes}. Acta Informatica.
+    \item Tanenbaum, A. S., \& Bos, H. (2014). \textit{Modern Operating Systems} (4th ed.). Pearson.
+    \item Silberschatz, A., Galvin, P. B., \& Gagne, G. (2018). \textit{Operating System Concepts} (10th ed.). Wiley.
+\end{enumerate}
+
+\end{document}
