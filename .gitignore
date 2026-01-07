@@ -18,6 +18,9 @@ __pycache__/
 *.lof
 *.lot
 
+# Test logs
+test_*_output.log
+
 # IDE
 .vscode/
 .idea/
@@ -28,3 +31,8 @@ __pycache__/
 # OS
 .DS_Store
 Thumbs.db
+
+
+
+PROMPT_FOR_OTHER_COPILOT.txt
+INSTRUCTIONS_180s.txt

@@ -14,9 +14,9 @@ from typing import List
 # ============================================================================
 # CONFIGURATION
 # ============================================================================
-NUM_PHILOSOPHERS = 5
+NUM_PHILOSOPHERS = 32
 MODE = "deadlock"  # Options: "deadlock", "hierarchy", "asymmetric"
-SIMULATION_TIME = 10  # seconds
+SIMULATION_TIME = 600  # seconds
 
 # ============================================================================
 # STRATEGY ENUM

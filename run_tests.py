@@ -11,9 +11,9 @@ import csv
 from datetime import datetime
 
 # Test configurations
-STRATEGIES = ['deadlock', 'hierarchy', 'asymmetric']
+STRATEGIES = ['asymmetric']  # Тільки asymmetric
 NUM_PHILOSOPHERS_LIST = [3, 5, 16, 32]
-SIMULATION_TIME = 60  # seconds for this run
+SIMULATION_TIME = 1200  # seconds for this run
 
 def run_test(strategy, num_philosophers, simulation_time):
     """Run a single test and parse results"""
